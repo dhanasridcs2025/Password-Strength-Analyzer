@@ -1,33 +1,14 @@
+import streamlit as st
 import re
 import hashlib
-import os
 
-DATABASE_FILE = "passwords.txt"
+st.title("🔐 Password Strength Analyzer")
 
-
-# Function to hash password
+# Hash function (optional future use)
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-
-# Function to check if password already exists
-def is_reused_password(hashed_password):
-    if not os.path.exists(DATABASE_FILE):
-        return False
-
-    with open(DATABASE_FILE, "r") as file:
-        stored_passwords = file.read().splitlines()
-
-    return hashed_password in stored_passwords
-
-
-# Function to save password hash
-def save_password(hashed_password):
-    with open(DATABASE_FILE, "a") as file:
-        file.write(hashed_password + "\n")
-
-
-# Password strength checker
+# Strength checker
 def check_password_strength(password):
     score = 0
     suggestions = []
@@ -69,27 +50,15 @@ def check_password_strength(password):
     return strength, suggestions
 
 
-# Main Program
-password = input("Enter Password: ")
+# UI
+password = st.text_input("Enter Password", type="password")
 
-# Hash the password
-hashed_password = hash_password(password)
-
-# Check reuse
-if is_reused_password(hashed_password):
-    print("\n⚠ Password already used before!")
-    print("Choose a new password.")
-else:
+if password:
     strength, suggestions = check_password_strength(password)
 
-    print("\nPassword Strength:", strength)
+    st.subheader(f"Password Strength: {strength}")
 
     if suggestions:
-        print("\nSuggestions:")
+        st.write("### Suggestions:")
         for s in suggestions:
-            print("-", s)
-
-    # Save password if not reused
-    save_password(hashed_password)
-
-    print("\n✅ Password saved securely.")
+            st.write("•", s)
